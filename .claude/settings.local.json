@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command \"try { $r = Invoke-WebRequest -Uri ''http://localhost:5173/'' -UseBasicParsing; $r.StatusCode; $r.Content.Substring\\(0,500\\) } catch { $_Exception.Message; $_Exception.Response.StatusCode }\")",
+      "Bash(docker compose exec:*)"
+    ]
+  }
+}
