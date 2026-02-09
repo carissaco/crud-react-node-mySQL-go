@@ -1,13 +1,13 @@
 services:
   db:
     image: mysql:8.0
-    command: --default-authentication-plugin=mysql_native_password
+    command: --default-authentication-plugin=mysql_native_password #forces MySQL to use an older auth method that the Node.js mysql package supports
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: test
-    volumes:
+    volumes: #mounts the init.sql file to the container's entry point so that when the container starts, it will execute the SQL commands in init.sql to set up the database
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:
+    healthcheck: # pings mysql to determine if the database is ready to accept connections
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
@@ -15,20 +15,20 @@ services:
 
   backend:
     build: ./backend
-    ports:
+    ports: #maps container port 8800 to host port 8800 so browser can reach the api
       - "8800:8800"
-    environment:
+    environment: # has to match the index.js environment variables
       DB_HOST: db
       DB_USER: root
       DB_PASSWORD: password
       DB_NAME: test
-    depends_on:
+    depends_on: # waits until it passes healthcheck before starting backend service
       db:
         condition: service_healthy
 
   frontend:
     build: ./frontend
-    ports:
+    ports: # maps vite dev server to port to the host to allow me to access it at localhost:5174
       - "5173:5173"
-    depends_on:
+    depends_on: # frontend starts after the backend is up
       - backend
